@@ -4,6 +4,7 @@ import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Loader from './Loader';
+import { Container } from './App.styled';
 
 class App extends Component {
   abortCtrl;
@@ -42,23 +43,26 @@ class App extends Component {
         },
       } = response;
 
+      const buttonState = currentPage < Math.ceil(totalHits / per_page);
+      this.imagesToState(hits, buttonState);
       console.log('config page', currentPage);
-
-      if (!hits.length) {
-        this.setState({ isEmpty: true });
-        return;
-      }
-
-      this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        isShowBtn: currentPage < Math.ceil(totalHits / per_page),
-      }));
     } catch (e) {
       this.setState({ error: e.message });
     } finally {
       this.setState({ isLoading: false });
-      console.log(this.state);
     }
+  };
+
+  imagesToState = (images, buttonState) => {
+    if (!images.length) {
+      this.setState({ isEmpty: true });
+      return;
+    }
+
+    this.setState(prevState => ({
+      images: [...prevState.images, ...images],
+      isShowBtn: buttonState,
+    }));
   };
 
   handleSearchSubmit = ({ query }) => {
@@ -80,13 +84,13 @@ class App extends Component {
   render() {
     const { images, isEmpty, isLoading, isShowBtn } = this.state;
     return (
-      <div>
+      <Container>
         <Searchbar onSubmit={this.handleSearchSubmit} />
         <ImageGallery images={images} />
         {isEmpty && <p>Sorry. There are no images ... 😭</p>}
         {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
         {isLoading && <Loader />}
-      </div>
+      </Container>
     );
   }
 }
