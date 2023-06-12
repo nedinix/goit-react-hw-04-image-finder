@@ -1,7 +1,9 @@
-const ImageGalleryItem = () => {
+const ImageGalleryItem = ({ imageLink, alt }) => {
   return (
     <li>
-      <img src="" alt="" />
+      <img src={imageLink} alt={alt} />
     </li>
   );
 };
+
+export default ImageGalleryItem;

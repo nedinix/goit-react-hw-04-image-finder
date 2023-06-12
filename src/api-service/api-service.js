@@ -9,14 +9,19 @@ axios.defaults.params = {
   orientation: 'horizontal',
   safesearch: true,
   per_page: 12,
-}
+};
 
-export const fetchImages = async (query, page, abortSignal) => {
+export const fetchImages = async (query, page, abortCtrl) => {
   const options = {
-    signal: abortSignal.signal,
+    q: query,
+    page: page,
   };
 
-  const { data } = await axios.get(`?q=${query}&page${page}`, options);
-  console.log(data);
-  return data;
+  const response = await axios.get('', {
+    params: options,
+    signal: abortCtrl.signal,
+  });
+  
+  console.log('fetch:', response);
+  return response;
 };
