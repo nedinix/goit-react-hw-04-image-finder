@@ -1,8 +1,9 @@
 import { Component } from 'react';
-import Searchbar from './Searchbar';
 import { fetchImages } from 'api-service';
+import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
+import Loader from './Loader';
 
 class App extends Component {
   abortCtrl;
@@ -84,7 +85,7 @@ class App extends Component {
         <ImageGallery images={images} />
         {isEmpty && <p>Sorry. There are no images ... 😭</p>}
         {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
-        {isLoading && <p>Loading ... </p>}
+        {isLoading && <Loader />}
       </div>
     );
   }
