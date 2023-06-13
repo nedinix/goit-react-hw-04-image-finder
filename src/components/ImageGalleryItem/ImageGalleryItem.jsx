@@ -1,9 +1,9 @@
 import { ImageGalleryItemStyled, ImageStyled } from './ImageGalleryItem.styled';
 import PropTypes from 'prop-types';
 
-const ImageGalleryItem = ({ imageLink, alt }) => {
+const ImageGalleryItem = ({ imageLink, alt, onClick }) => {
   return (
-    <ImageGalleryItemStyled>
+    <ImageGalleryItemStyled onClick={onClick}>
       <ImageStyled src={imageLink} alt={alt} />
     </ImageGalleryItemStyled>
   );

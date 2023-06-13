@@ -5,6 +5,7 @@ import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Loader from './Loader';
 import { Container } from './App.styled';
+import Modal from './Modal';
 
 class App extends Component {
   abortCtrl;
@@ -17,6 +18,7 @@ class App extends Component {
     isShowBtn: false,
     isEmpty: false,
     error: null,
+    isModalOpen: false,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -35,7 +37,6 @@ class App extends Component {
       this.abortCtrl = new AbortController();
       this.setState({ isLoading: true });
       const response = await fetchImages(searchQuery, page, this.abortCtrl);
-      console.log('response', response);
       const {
         data: { hits, totalHits },
         config: {
@@ -43,9 +44,9 @@ class App extends Component {
         },
       } = response;
 
+      console.log('fetch');
       const buttonState = currentPage < Math.ceil(totalHits / per_page);
       this.imagesToState(hits, buttonState);
-      console.log('config page', currentPage);
     } catch (e) {
       this.setState({ error: e.message });
     } finally {
@@ -81,15 +82,32 @@ class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
+  openModal = largeImageURL => {
+    this.setState({ isModalOpen: true, largeImageURL: largeImageURL });
+    console.log(this.state);
+  };
+
+  closeModal = () => this.setState({ isModalOpen: false });
+
+  handleClickImage = e => {
+    console.log(e.currentTarget);
+  };
+
   render() {
-    const { images, isEmpty, isLoading, isShowBtn } = this.state;
+    const { images, isEmpty, isLoading, isShowBtn, isModalOpen } = this.state;
     return (
       <Container>
         <Searchbar onSubmit={this.handleSearchSubmit} />
-        <ImageGallery images={images} />
+        <ImageGallery images={images} onClickImage={this.openModal} />
         {isEmpty && <p>Sorry. There are no images ... 😭</p>}
         {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
         {isLoading && <Loader />}
+        <Modal
+          isOpen={isModalOpen}
+          onRequestClose={this.closeModal}
+          imageURL={''}
+          imageAlt={''}
+        />
       </Container>
     );
   }
