@@ -1,6 +1,10 @@
-const Button = ({onClick}) => {
+import { ButtonStyled } from './Button.styled';
+
+const Button = ({ onClick }) => {
   return (
-    <button onClick={onClick} type='button'>Load more</button>
-  )
-}
+    <ButtonStyled onClick={onClick} type="button">
+      Load more
+    </ButtonStyled>
+  );
+};
 export default Button;
