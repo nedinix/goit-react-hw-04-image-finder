@@ -6,12 +6,9 @@ import Button from './Button';
 import Loader from './Loader';
 import { Container } from './App.styled';
 import Modal from './Modal';
-import ReactModal from 'react-modal';
-import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 class App extends Component {
   abortCtrl;
-  targetElement = null;
 
   state = {
     searchQuery: '',
@@ -48,7 +45,6 @@ class App extends Component {
         },
       } = response;
 
-      console.log('fetch');
       const buttonState = currentPage < Math.ceil(totalHits / per_page);
       this.imagesToState(hits, buttonState);
     } catch (e) {
@@ -92,7 +88,6 @@ class App extends Component {
       isModalOpen: true,
       modalImage: { imageURL: link, alt: tags },
     });
-    console.log('state', this.state);
   };
 
   closeModal = () => this.setState({ isModalOpen: false });
@@ -107,14 +102,11 @@ class App extends Component {
         {isEmpty && <p>Sorry. There are no images ... 😭</p>}
         {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
         {isLoading && <Loader />}
-        <ReactModal
+        <Modal
           isOpen={isModalOpen}
           onRequestClose={this.closeModal}
-          onAfterOpen={disableBodyScroll}
-          onAfterClose={enableBodyScroll}
-        >
-          <Modal image={modalImage} />
-        </ReactModal>
+          image={modalImage}
+        />
       </Container>
     );
   }
