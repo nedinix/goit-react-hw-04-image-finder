@@ -11,7 +11,7 @@ const ImageGallery = ({ images, onClickImage }) => {
             key={id}
             imageLink={webformatURL}
             alt={tags}
-            onClick={onClickImage}
+            onClick={() => onClickImage(largeImageURL, tags)}
           />
         );
       })}
@@ -27,6 +27,7 @@ ImageGallery.propTypes = {
       tags: PropTypes.string,
     })
   ),
+  onClickImage: PropTypes.func.isRequired,
 };
 
 export default ImageGallery;

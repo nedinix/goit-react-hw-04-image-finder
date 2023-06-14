@@ -1,19 +1,17 @@
 import ReactModal from 'react-modal';
 import { Overlay, ModalStyled } from './Modal.styled';
 
-const Modal = ({ isOpen, onRequestClose, imageURL, imageAlt }) => {
+const ModalImage = ({ image }) => {
+  const { imageURL, tags } = image;
   return (
-    <ReactModal isOpen={isOpen} onRequestClose={onRequestClose}>
-      <Overlay>
-        <ModalStyled>
-          <img src={imageURL} alt={imageAlt} />
-          <span>text</span>
-        </ModalStyled>
-      </Overlay>
-    </ReactModal>
+    <Overlay>
+      <ModalStyled>
+        <img src={imageURL} alt={tags} />
+      </ModalStyled>
+    </Overlay>
   );
 };
 
 ReactModal.setAppElement('#root');
 
-export default Modal;
+export default ModalImage;

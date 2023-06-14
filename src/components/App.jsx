@@ -6,9 +6,12 @@ import Button from './Button';
 import Loader from './Loader';
 import { Container } from './App.styled';
 import Modal from './Modal';
+import ReactModal from 'react-modal';
+import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 class App extends Component {
   abortCtrl;
+  targetElement = null;
 
   state = {
     searchQuery: '',
@@ -19,6 +22,7 @@ class App extends Component {
     isEmpty: false,
     error: null,
     isModalOpen: false,
+    modalImage: {},
   };
 
   async componentDidUpdate(_, prevState) {
@@ -75,6 +79,7 @@ class App extends Component {
       isShowBtn: false,
       isEmpty: false,
       error: null,
+      modalImage: {},
     });
   };
 
@@ -82,19 +87,19 @@ class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  openModal = largeImageURL => {
-    this.setState({ isModalOpen: true, largeImageURL: largeImageURL });
-    console.log(this.state);
+  openModal = (link, tags) => {
+    this.setState({
+      isModalOpen: true,
+      modalImage: { imageURL: link, alt: tags },
+    });
+    console.log('state', this.state);
   };
 
   closeModal = () => this.setState({ isModalOpen: false });
 
-  handleClickImage = e => {
-    console.log(e.currentTarget);
-  };
-
   render() {
-    const { images, isEmpty, isLoading, isShowBtn, isModalOpen } = this.state;
+    const { images, isEmpty, isLoading, isShowBtn, isModalOpen, modalImage } =
+      this.state;
     return (
       <Container>
         <Searchbar onSubmit={this.handleSearchSubmit} />
@@ -102,12 +107,14 @@ class App extends Component {
         {isEmpty && <p>Sorry. There are no images ... 😭</p>}
         {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
         {isLoading && <Loader />}
-        <Modal
+        <ReactModal
           isOpen={isModalOpen}
           onRequestClose={this.closeModal}
-          imageURL={''}
-          imageAlt={''}
-        />
+          onAfterOpen={disableBodyScroll}
+          onAfterClose={enableBodyScroll}
+        >
+          <Modal image={modalImage} />
+        </ReactModal>
       </Container>
     );
   }
