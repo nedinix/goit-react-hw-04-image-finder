@@ -31,7 +31,7 @@ export const FormStyled = styled(Form)`
 `;
 
 export const FieldStyled = styled(Field)`
-  display: inline-block;
+  display: block;
   width: 100%;
   font: inherit;
   font-size: 20px;
@@ -46,40 +46,18 @@ export const FieldStyled = styled(Field)`
   }
 `;
 
-// .search-input:hover,
-// .search-input:focus {
-//   transform: scale(1);
-//   box-shadow: 0 0 10px -2px var(--shadow-color);
-// }
+export const SearchButtonStyled = styled.button`
+  display: block;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  background: unset;
+  opacity: 0.6;
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  outline: none;
 
-// .search-input:active,
-// .search-input:focus {
-//   outline: 1px solid var(--button-color);
-// }
-
-// .search-button {
-//   padding: 8px;
-
-//   color: #fff;
-
-//   background-color: var(--button-color);
-//   border: transparent;
-//   border-radius: 4px;
-//   box-shadow: 0 0 5px -2px #313131d3;
-
-//   transform: scale(0.98);
-//   transition: box-shadow var(--transision), color var(--transision),
-//     background-color var(--transision), transform var(--transision-scale);
-// }
-
-// .search-button:hover,
-// .search-button:focus,
-// .search-button:active {
-//   box-shadow: 0 0 10px -2px var(--shadow-color);
-//   transform: scale(1);
-// }
-
-// .search-button:active {
-//   color: #0f3c77d3;
-//   background-color: #dee9f3;
-// }
+  &:hover {
+    opacity: 1;
+  }
+`;

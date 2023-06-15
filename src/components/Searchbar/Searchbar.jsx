@@ -1,7 +1,13 @@
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import PropTypes from 'prop-types';
-import { SearchbarStyled, FieldStyled, FormStyled } from './Searchbar.styled';
+import {
+  SearchbarStyled,
+  FieldStyled,
+  FormStyled,
+  SearchButtonStyled,
+} from './Searchbar.styled';
+import { CiSearch } from 'react-icons/ci';
 
 const validationSchema = yup.string().required();
 
@@ -18,9 +24,9 @@ const Searchbar = ({ onSubmit }) => {
         onSubmit={onSubmit}
       >
         <FormStyled>
-          <button type="submit">
-            <span>Search</span>
-          </button>
+          <SearchButtonStyled type="submit">
+            <CiSearch size="24" />
+          </SearchButtonStyled>
 
           <FieldStyled
             name="query"

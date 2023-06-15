@@ -8,7 +8,6 @@ const LoaderStyled = styled(TailSpin)`
   bottom: auto;
   margin-right: -50%;
   transform: translate(-50%, -50%);
-  color: black;
 `;
 
 const LoaderWrapper = {
@@ -21,7 +20,7 @@ const LoaderWrapper = {
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  zIndex: '1200',
+  zIndex: '1000',
 };
 
 const Loader = () => {

@@ -67,6 +67,10 @@ class App extends Component {
   };
 
   handleSearchSubmit = ({ query }) => {
+    if (this.state.searchQuery === query) {
+      return;
+    }
+
     this.setState({
       searchQuery: query,
       page: 1,
@@ -96,19 +100,22 @@ class App extends Component {
     const { images, isEmpty, isLoading, isShowBtn, isModalOpen, modalImage } =
       this.state;
     return (
-      <Container>
-        <Searchbar onSubmit={this.handleSearchSubmit} />
-        {/* <Loader /> */}
-        <ImageGallery images={images} onClickImage={this.openModal} />
-        {isEmpty && <p>Sorry. There are no images ... 😭</p>}
-        {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
-        {isLoading && <Loader />}
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={this.closeModal}
-          image={modalImage}
-        />
-      </Container>
+      <>
+        <Container>
+          <Searchbar onSubmit={this.handleSearchSubmit} />
+          <main>
+            <ImageGallery images={images} onClickImage={this.openModal} />
+            {isEmpty && <p>Sorry. There are no images ... 😭</p>}
+            {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
+            {isLoading && <Loader />}
+            <Modal
+              isOpen={isModalOpen}
+              onRequestClose={this.closeModal}
+              image={modalImage}
+            />
+          </main>
+        </Container>
+      </>
     );
   }
 }
