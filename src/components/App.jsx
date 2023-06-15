@@ -13,12 +13,12 @@ class App extends Component {
     searchQuery: PropTypes.string,
     page: PropTypes.number,
     images: PropTypes.array,
-    isLoading: PropTypes.bool.isRequired,
-    isShowBtn: PropTypes.bool.isRequired,
-    isEmpty: PropTypes.bool.isRequired,
+    isLoading: PropTypes.bool,
+    isShowBtn: PropTypes.bool,
+    isEmpty: PropTypes.bool,
     error: PropTypes.string,
-    isModalOpen: PropTypes.bool.isRequired,
-    modalImage: PropTypes.object.isRequired,
+    isModalOpen: PropTypes.bool,
+    modalImage: PropTypes.object,
   };
   abortCtrl;
 
