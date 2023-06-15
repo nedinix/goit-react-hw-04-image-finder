@@ -144,7 +144,7 @@ class App extends Component {
             )}
             <Modal
               isOpen={isModalOpen}
-              onRequestClose={this.closeModal}
+              onCloseModal={this.closeModal}
               image={modalImage}
             />
           </main>

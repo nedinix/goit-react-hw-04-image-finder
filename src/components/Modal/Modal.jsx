@@ -1,5 +1,5 @@
 import ReactModal from 'react-modal';
-import { Image } from './Modal.styled';
+import { Image, CrossIcon } from './Modal.styled';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import PropTypes from 'prop-types';
 
@@ -31,17 +31,18 @@ const modalStyle = {
   },
 };
 
-const Modal = ({ isOpen, onRequestClose, image }) => {
+const Modal = ({ isOpen, onCloseModal, image }) => {
   const { imageURL, tags } = image;
   return (
     <ReactModal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      onRequestClose={onCloseModal}
       onAfterOpen={() => disableBodyScroll(document)}
       onAfterClose={() => enableBodyScroll(document)}
       style={modalStyle}
       bodyOpenClassName={null}
     >
+      <CrossIcon onClick={onCloseModal} size={32} />
       <Image src={imageURL} alt={tags} />
     </ReactModal>
   );
@@ -49,7 +50,7 @@ const Modal = ({ isOpen, onRequestClose, image }) => {
 
 Modal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  onRequestClose: PropTypes.func.isRequired,
+  onCloseModal: PropTypes.func.isRequired,
   images: PropTypes.arrayOf(
     PropTypes.shape({
       imageURL: PropTypes.string,
