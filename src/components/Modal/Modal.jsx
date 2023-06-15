@@ -1,6 +1,6 @@
 import Modal from 'react-modal';
 import { Image } from './Modal.styled';
-// import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
+import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 Modal.setAppElement('#root');
 
@@ -42,9 +42,10 @@ const ModalImage = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      // onAfterOpen={disableBodyScroll}
-      // onAfterClose={enableBodyScroll}
+      onAfterOpen={disableBodyScroll}
+      onAfterClose={enableBodyScroll}
       style={modalStyle}
+      bodyOpenClassName={null}
     >
       <Image src={imageURL} alt={tags} />
     </Modal>
