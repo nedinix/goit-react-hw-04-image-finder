@@ -5,9 +5,21 @@ import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Loader from './Loader';
 import { Container } from './App.styled';
-import Modal from './Modal';
+import Modal from './Modal/Modal';
+import PropTypes from 'prop-types';
 
 class App extends Component {
+  static propTypes = {
+    searchQuery: PropTypes.string.isRequired,
+    page: PropTypes.number.isRequired,
+    images: PropTypes.array,
+    isLoading: PropTypes.bool.isRequired,
+    isShowBtn: PropTypes.bool.isRequired,
+    isEmpty: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    isModalOpen: PropTypes.bool.isRequired,
+    modalImage: PropTypes.object.isRequired,
+  };
   abortCtrl;
 
   state = {
@@ -25,8 +37,9 @@ class App extends Component {
   async componentDidUpdate(_, prevState) {
     const { searchQuery, page } = this.state;
     if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
-      this.getImages(this.state);
-      console.log('update');
+      this.getImages(this.state).then(() => {
+        setTimeout(() => this.onLoadmoreScroll(), 100);
+      });
     }
   }
 
@@ -83,9 +96,8 @@ class App extends Component {
     });
   };
 
-  handleClickBtnLoadmore = () => {
+  handleClickBtnLoadmore = () =>
     this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
 
   openModal = (link, tags) => {
     this.setState({
@@ -96,6 +108,13 @@ class App extends Component {
 
   closeModal = () => this.setState({ isModalOpen: false });
 
+  onLoadmoreScroll = () => {
+    window.scrollBy({
+      top: window.innerHeight,
+      behavior: 'smooth',
+    });
+  };
+
   render() {
     const { images, isEmpty, isLoading, isShowBtn, isModalOpen, modalImage } =
       this.state;
@@ -105,7 +124,11 @@ class App extends Component {
           <Searchbar onSubmit={this.handleSearchSubmit} />
           <main>
             <ImageGallery images={images} onClickImage={this.openModal} />
-            {isEmpty && <p>Sorry. There are no images ... 😭</p>}
+            {isEmpty && (
+              <p style={{ textAlign: 'center' }}>
+                Sorry. There are no images ... 😭
+              </p>
+            )}
             {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
             {isLoading && <Loader />}
             <Modal

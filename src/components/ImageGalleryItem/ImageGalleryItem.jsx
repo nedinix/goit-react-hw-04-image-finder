@@ -12,6 +12,7 @@ const ImageGalleryItem = ({ imageLink, alt, onClick }) => {
 ImageGalleryItem.propTypes = {
   imageLink: PropTypes.string,
   alt: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 export default ImageGalleryItem;

@@ -1,8 +1,9 @@
-import Modal from 'react-modal';
+import ReactModal from 'react-modal';
 import { Image } from './Modal.styled';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
+import PropTypes from 'prop-types';
 
-Modal.setAppElement('#root');
+ReactModal.setAppElement('#root');
 
 const modalStyle = {
   overlay: {
@@ -30,26 +31,31 @@ const modalStyle = {
   },
 };
 
-const ModalImage = ({
-  isOpen,
-  onRequestClose,
-  onAfterOpen,
-  onAfterClose,
-  image,
-}) => {
+const Modal = ({ isOpen, onRequestClose, image }) => {
   const { imageURL, tags } = image;
   return (
-    <Modal
+    <ReactModal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      onAfterOpen={disableBodyScroll}
-      onAfterClose={enableBodyScroll}
+      onAfterOpen={() => disableBodyScroll(document)}
+      onAfterClose={() => enableBodyScroll(document)}
       style={modalStyle}
       bodyOpenClassName={null}
     >
       <Image src={imageURL} alt={tags} />
-    </Modal>
+    </ReactModal>
   );
 };
 
-export default ModalImage;
+Modal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      imageURL: PropTypes.string,
+      tags: PropTypes.string,
+    })
+  ),
+};
+
+export default Modal;

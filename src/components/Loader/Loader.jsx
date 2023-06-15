@@ -1,14 +1,4 @@
-import { TailSpin } from 'react-loader-spinner';
-import styled from '@emotion/styled';
-
-const LoaderStyled = styled(TailSpin)`
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-`;
+import { LoaderStyled } from './Loader.styled';
 
 const LoaderWrapper = {
   position: 'fixed',

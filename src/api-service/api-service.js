@@ -21,7 +21,6 @@ export const fetchImages = async (query, page, abortCtrl) => {
     params: options,
     signal: abortCtrl.signal,
   });
-  
-  console.log('fetch:', response);
+
   return response;
 };
