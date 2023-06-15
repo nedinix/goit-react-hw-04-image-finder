@@ -10,8 +10,8 @@ import PropTypes from 'prop-types';
 
 class App extends Component {
   static propTypes = {
-    searchQuery: PropTypes.string.isRequired,
-    page: PropTypes.number.isRequired,
+    searchQuery: PropTypes.string,
+    page: PropTypes.number,
     images: PropTypes.array,
     isLoading: PropTypes.bool.isRequired,
     isShowBtn: PropTypes.bool.isRequired,
