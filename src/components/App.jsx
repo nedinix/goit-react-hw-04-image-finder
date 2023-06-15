@@ -20,6 +20,7 @@ class App extends Component {
     isModalOpen: PropTypes.bool,
     modalImage: PropTypes.object,
   };
+
   abortCtrl;
 
   state = {
@@ -116,8 +117,15 @@ class App extends Component {
   };
 
   render() {
-    const { images, isEmpty, isLoading, isShowBtn, isModalOpen, modalImage } =
-      this.state;
+    const {
+      images,
+      error,
+      isEmpty,
+      isLoading,
+      isShowBtn,
+      isModalOpen,
+      modalImage,
+    } = this.state;
     return (
       <>
         <Container>
@@ -131,6 +139,9 @@ class App extends Component {
             )}
             {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
             {isLoading && <Loader />}
+            {error && (
+              <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>
+            )}
             <Modal
               isOpen={isModalOpen}
               onRequestClose={this.closeModal}
