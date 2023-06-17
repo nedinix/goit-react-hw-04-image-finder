@@ -23,24 +23,27 @@ const App = () => {
     if (!searchQuery) {
       return;
     }
+
     if (searchQuery.includes('/')) {
       setSearchQuery(query => query.split('/')[1]);
     }
 
     async function getImages(query, page) {
       try {
-        console.log('fetch query', query);
         setIsLoading(true);
+
         const response = await fetchImages({
           query,
           page,
         });
+
         const {
           data: { hits, totalHits },
           config: {
             params: { page: currentPage, per_page },
           },
         } = response;
+
         const loadMoreButtonState =
           currentPage < Math.ceil(totalHits / per_page);
         setGalleryImagesToState(hits, loadMoreButtonState);

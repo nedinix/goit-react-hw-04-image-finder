@@ -11,7 +11,7 @@ axios.defaults.params = {
   per_page: 12,
 };
 
-export const fetchImages = async (query, page, abortCtrl) => {
+export const fetchImages = async ({ query, page }) => {
   const options = {
     q: query,
     page: page,
@@ -19,8 +19,6 @@ export const fetchImages = async (query, page, abortCtrl) => {
 
   const response = await axios.get('', {
     params: options,
-    signal: abortCtrl.signal,
   });
-
   return response;
 };
