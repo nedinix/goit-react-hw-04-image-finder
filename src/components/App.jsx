@@ -24,9 +24,7 @@ const App = () => {
       return;
     }
 
-    if (searchQuery.includes('/')) {
-      setSearchQuery(query => query.split('/')[1]);
-    }
+    if (searchQuery.includes('/')) setSearchQuery(query => query.split('/')[1]);
 
     async function getImages(query, page) {
       try {
@@ -47,15 +45,11 @@ const App = () => {
         const loadMoreButtonState =
           currentPage < Math.ceil(totalHits / per_page);
         setGalleryImagesToState(hits, loadMoreButtonState);
-        if (hits) {
-          setIsEmpty(false);
-        }
 
-        if (error !== null) {
-          setError(null);
-        }
+        if (error !== null) setError(null);
       } catch (e) {
         setError(e.message);
+        console.log(e.message);
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +64,17 @@ const App = () => {
         behavior: 'smooth',
       });
     }
+    if (images.length > 0) setIsEmpty(false);
   }, [images, page]);
+
+  const setGalleryImagesToState = (newImages, btnState) => {
+    if (!newImages.length) {
+      setIsEmpty(true);
+      return;
+    }
+    setImages(images => [...images, ...newImages]);
+    setIsShowBtn(btnState);
+  };
 
   const handleSearchSubmit = async ({ query }) => {
     searchQuery === query
@@ -83,15 +87,6 @@ const App = () => {
     setIsEmpty(false);
     setError(null);
     setModalImage({});
-  };
-
-  const setGalleryImagesToState = (newImages, btnState) => {
-    if (!newImages.length) {
-      setIsEmpty(true);
-      return;
-    }
-    setImages(images => [...images, ...newImages]);
-    setIsShowBtn(btnState);
   };
 
   const handleClickBtnLoadmore = () => setPage(page => page + 1);
