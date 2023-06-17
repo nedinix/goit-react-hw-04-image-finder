@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchImages } from 'api-service';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
@@ -8,149 +8,131 @@ import { Container } from './App.styled';
 import Modal from './Modal/Modal';
 import PropTypes from 'prop-types';
 
-class App extends Component {
-  static propTypes = {
-    searchQuery: PropTypes.string,
-    page: PropTypes.number,
-    images: PropTypes.array,
-    isLoading: PropTypes.bool,
-    isShowBtn: PropTypes.bool,
-    isEmpty: PropTypes.bool,
-    error: PropTypes.string,
-    isModalOpen: PropTypes.bool,
-    modalImage: PropTypes.object,
-  };
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowBtn, setIsShowBtn] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState({});
 
-  abortCtrl;
+  useEffect(() => {
+    if (!searchQuery) {
+      return;
+    }
+    if (searchQuery.includes('/')) {
+      setSearchQuery(query => query.split('/')[1]);
+    }
 
-  state = {
-    searchQuery: '',
-    page: 1,
-    images: [],
-    isLoading: false,
-    isShowBtn: false,
-    isEmpty: false,
-    error: null,
-    isModalOpen: false,
-    modalImage: {},
-  };
+    async function getImages(query, page) {
+      try {
+        console.log('fetch query', query);
+        setIsLoading(true);
+        const response = await fetchImages({
+          query,
+          page,
+        });
+        const {
+          data: { hits, totalHits },
+          config: {
+            params: { page: currentPage, per_page },
+          },
+        } = response;
+        const loadMoreButtonState =
+          currentPage < Math.ceil(totalHits / per_page);
+        setGalleryImagesToState(hits, loadMoreButtonState);
+        if (hits) {
+          setIsEmpty(false);
+        }
 
-  async componentDidUpdate(_, prevState) {
-    const { searchQuery, page } = this.state;
-    if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
-      this.getImages(this.state).then(() => {
-        setTimeout(() => this.onLoadmoreScroll(), 100);
+        if (error !== null) {
+          setError(null);
+        }
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    getImages(searchQuery, page);
+  }, [searchQuery, page, error]);
+
+  useEffect(() => {
+    if (page > 1) {
+      window.scrollBy({
+        top: window.innerHeight - 72 * 2.5,
+        behavior: 'smooth',
       });
     }
-  }
+  }, [images, page]);
 
-  getImages = async ({ searchQuery, page }) => {
-    try {
-      if (this.abortCtrl) {
-        this.abortCtrl.abort();
-      }
-      this.abortCtrl = new AbortController();
-      this.setState({ isLoading: true });
-      const response = await fetchImages(searchQuery, page, this.abortCtrl);
-      const {
-        data: { hits, totalHits },
-        config: {
-          params: { page: currentPage, per_page },
-        },
-      } = response;
-
-      const buttonState = currentPage < Math.ceil(totalHits / per_page);
-      this.imagesToState(hits, buttonState);
-    } catch (e) {
-      this.setState({ error: e.message });
-    } finally {
-      this.setState({ isLoading: false });
-    }
+  const handleSearchSubmit = async ({ query }) => {
+    searchQuery === query
+      ? setSearchQuery(`${Date.now()}/${query}`)
+      : setSearchQuery(query);
+    setPage(1);
+    setImages([]);
+    setIsLoading(false);
+    setIsShowBtn(false);
+    setIsEmpty(false);
+    setError(null);
+    setModalImage({});
   };
 
-  imagesToState = (images, buttonState) => {
-    if (!images.length) {
-      this.setState({ isEmpty: true });
+  const setGalleryImagesToState = (newImages, btnState) => {
+    if (!newImages.length) {
+      setIsEmpty(true);
       return;
     }
-
-    this.setState(prevState => ({
-      images: [...prevState.images, ...images],
-      isShowBtn: buttonState,
-    }));
+    setImages(images => [...images, ...newImages]);
+    setIsShowBtn(btnState);
   };
 
-  handleSearchSubmit = ({ query }) => {
-    if (this.state.searchQuery === query) {
-      return;
-    }
+  const handleClickBtnLoadmore = () => setPage(page => page + 1);
 
-    this.setState({
-      searchQuery: query,
-      page: 1,
-      images: [],
-      isLoading: false,
-      isShowBtn: false,
-      isEmpty: false,
-      error: null,
-      modalImage: {},
-    });
+  const openModal = (link, tags) => {
+    setIsModalOpen(true);
+    setModalImage({ imageURL: link, alt: tags });
   };
 
-  handleClickBtnLoadmore = () =>
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const closeModal = () => setIsModalOpen(false);
 
-  openModal = (link, tags) => {
-    this.setState({
-      isModalOpen: true,
-      modalImage: { imageURL: link, alt: tags },
-    });
-  };
+  return (
+    <Container>
+      <Searchbar onSubmit={handleSearchSubmit} />
+      <main>
+        <ImageGallery images={images} onClickImage={openModal} />
+        {isEmpty && (
+          <p style={{ textAlign: 'center' }}>
+            Sorry. There are no images ... 😭
+          </p>
+        )}
+        {isShowBtn && <Button onClick={handleClickBtnLoadmore} />}
+        {isLoading && <Loader />}
+        {error && <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>}
+        <Modal
+          isOpen={isModalOpen}
+          onCloseModal={closeModal}
+          image={modalImage}
+        />
+      </main>
+    </Container>
+  );
+};
 
-  closeModal = () => this.setState({ isModalOpen: false });
+App.propTypes = {
+  searchQuery: PropTypes.string,
+  page: PropTypes.number,
+  images: PropTypes.array,
+  isLoading: PropTypes.bool,
+  isShowBtn: PropTypes.bool,
+  isEmpty: PropTypes.bool,
+  error: PropTypes.string,
+  isModalOpen: PropTypes.bool,
+  modalImage: PropTypes.object,
+};
 
-  onLoadmoreScroll = () => {
-    window.scrollBy({
-      top: window.innerHeight,
-      behavior: 'smooth',
-    });
-  };
-
-  render() {
-    const {
-      images,
-      error,
-      isEmpty,
-      isLoading,
-      isShowBtn,
-      isModalOpen,
-      modalImage,
-    } = this.state;
-    return (
-      <>
-        <Container>
-          <Searchbar onSubmit={this.handleSearchSubmit} />
-          <main>
-            <ImageGallery images={images} onClickImage={this.openModal} />
-            {isEmpty && (
-              <p style={{ textAlign: 'center' }}>
-                Sorry. There are no images ... 😭
-              </p>
-            )}
-            {isShowBtn && <Button onClick={this.handleClickBtnLoadmore} />}
-            {isLoading && <Loader />}
-            {error && (
-              <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>
-            )}
-            <Modal
-              isOpen={isModalOpen}
-              onCloseModal={this.closeModal}
-              image={modalImage}
-            />
-          </main>
-        </Container>
-      </>
-    );
-  }
-}
 export default App;
