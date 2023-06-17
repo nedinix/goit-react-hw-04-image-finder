@@ -9,7 +9,11 @@ import {
 } from './Searchbar.styled';
 import { CiSearch } from 'react-icons/ci';
 
-const validationSchema = yup.string().required();
+const validationSchema = yup
+  .string()
+  .min(2, 'No data to search, fill in the search field')
+  .max(32)
+  .required();
 
 const initialValues = {
   query: '',

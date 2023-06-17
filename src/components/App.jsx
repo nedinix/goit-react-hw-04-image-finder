@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { fetchImages } from 'api-service';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [images, setImages] = useState([]);
+  const [respData, setRespData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isShowBtn, setIsShowBtn] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
@@ -19,20 +19,25 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState({});
 
+  const abortCtrl = useRef();
+
   useEffect(() => {
     if (!searchQuery) {
       return;
     }
+    if (searchQuery.includes('id/'))
+      setSearchQuery(query => query.split('/')[1]);
 
-    if (searchQuery.includes('/')) setSearchQuery(query => query.split('/')[1]);
-
-    async function getImages(query, page) {
+    async function getImages(query, page, abortCtrl) {
+      if (abortCtrl) abortCtrl.abort();
+      abortCtrl = new AbortController();
       try {
         setIsLoading(true);
 
         const response = await fetchImages({
           query,
           page,
+          abortCtrl,
         });
 
         const {
@@ -44,7 +49,10 @@ const App = () => {
 
         const loadMoreButtonState =
           currentPage < Math.ceil(totalHits / per_page);
-        setGalleryImagesToState(hits, loadMoreButtonState);
+
+        hits.length
+          ? setGalleryImagesToState(hits, loadMoreButtonState)
+          : setIsEmpty(true);
 
         if (error !== null) setError(null);
       } catch (e) {
@@ -54,34 +62,39 @@ const App = () => {
         setIsLoading(false);
       }
     }
-    getImages(searchQuery, page);
+    getImages(searchQuery, page, abortCtrl.current);
   }, [searchQuery, page, error]);
 
   useEffect(() => {
-    if (page > 1) {
+    if (!respData.length) {
+      return;
+    }
+    setIsEmpty(false);
+    if (page > 1)
       window.scrollBy({
         top: window.innerHeight - 72 * 2.5,
         behavior: 'smooth',
       });
-    }
-    if (images.length > 0) setIsEmpty(false);
-  }, [images, page]);
+  }, [respData, page]);
 
   const setGalleryImagesToState = (newImages, btnState) => {
-    if (!newImages.length) {
-      setIsEmpty(true);
-      return;
+    if (newImages.length) {
+      setIsEmpty(false);
     }
-    setImages(images => [...images, ...newImages]);
+    setRespData(respData => [...respData, ...newImages]);
     setIsShowBtn(btnState);
   };
 
   const handleSearchSubmit = async ({ query }) => {
+    if (!query) {
+      return;
+    }
+
     searchQuery === query
-      ? setSearchQuery(`${Date.now()}/${query}`)
+      ? setSearchQuery(`${Date.now()}id/${query}`)
       : setSearchQuery(query);
     setPage(1);
-    setImages([]);
+    setRespData([]);
     setIsLoading(false);
     setIsShowBtn(false);
     setIsEmpty(false);
@@ -102,7 +115,7 @@ const App = () => {
     <Container>
       <Searchbar onSubmit={handleSearchSubmit} />
       <main>
-        <ImageGallery images={images} onClickImage={openModal} />
+        <ImageGallery images={respData} onClickImage={openModal} />
         {isEmpty && (
           <p style={{ textAlign: 'center' }}>
             Sorry. There are no images ... 😭
