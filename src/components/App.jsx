@@ -86,10 +86,6 @@ const App = () => {
   };
 
   const handleSearchSubmit = async ({ query }) => {
-    if (!query) {
-      return;
-    }
-
     searchQuery === query
       ? setSearchQuery(`${Date.now()}id/${query}`)
       : setSearchQuery(query);
