@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchImages } from 'api-service';
-import Searchbar from './Searchbar';
+import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Loader from './Loader';
@@ -10,11 +10,10 @@ import PropTypes from 'prop-types';
 
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [respData, setRespData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isShowBtn, setIsShowBtn] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [isShowLoadmoreButton, setIsShowLoadmoreButton] = useState(false);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState({});
@@ -25,80 +24,64 @@ const App = () => {
     if (!searchQuery) {
       return;
     }
-    if (searchQuery.includes('id/'))
-      setSearchQuery(query => query.split('/')[1]);
+
+    const normalizedSearchQuery = searchQuery.includes('id/')
+      ? searchQuery.split('/')[1]
+      : searchQuery;
 
     async function getImages(query, page, abortCtrl) {
       if (abortCtrl) abortCtrl.abort();
       abortCtrl = new AbortController();
+
       try {
         setIsLoading(true);
-
         const response = await fetchImages({
           query,
           page,
           abortCtrl,
         });
 
-        const {
-          data: { hits, totalHits },
-          config: {
-            params: { page: currentPage, per_page },
-          },
-        } = response;
+        const { hits, totalHits } = response.data;
+        const { page: currentPage, per_page } = response.config.params;
 
-        const loadMoreButtonState =
+        const isShowLoadmoreButton =
           currentPage < Math.ceil(totalHits / per_page);
 
-        hits.length
-          ? setGalleryImagesToState(hits, loadMoreButtonState)
-          : setIsEmpty(true);
-
-        if (error !== null) setError(null);
+        if (!hits.length) throw new Error('Sorry. There are no images ... 😭');
+        setRespData(respData => [...respData, ...hits]);
+        setIsShowLoadmoreButton(isShowLoadmoreButton);
+        setError(null);
       } catch (e) {
         setError(e.message);
-        console.log(e.message);
       } finally {
         setIsLoading(false);
       }
     }
-    getImages(searchQuery, page, abortCtrl.current);
-  }, [searchQuery, page, error]);
+    getImages(normalizedSearchQuery, currentPage, abortCtrl.current);
+  }, [searchQuery, currentPage]);
 
   useEffect(() => {
-    if (!respData.length) {
-      return;
-    }
-    setIsEmpty(false);
-    if (page > 1)
+    if (currentPage > 1)
       window.scrollBy({
         top: window.innerHeight - 72 * 2.5,
         behavior: 'smooth',
       });
-  }, [respData, page]);
-
-  const setGalleryImagesToState = (newImages, btnState) => {
-    if (newImages.length) {
-      setIsEmpty(false);
-    }
-    setRespData(respData => [...respData, ...newImages]);
-    setIsShowBtn(btnState);
-  };
+  }, [respData, currentPage]);
 
   const handleSearchSubmit = async ({ query }) => {
-    searchQuery === query
+    query === searchQuery
       ? setSearchQuery(`${Date.now()}id/${query}`)
       : setSearchQuery(query);
-    setPage(1);
+    setCurrentPage(1);
     setRespData([]);
     setIsLoading(false);
-    setIsShowBtn(false);
-    setIsEmpty(false);
+    setIsShowLoadmoreButton(false);
     setError(null);
     setModalImage({});
   };
 
-  const handleClickBtnLoadmore = () => setPage(page => page + 1);
+  const handleClickBtnLoadmore = () =>
+    setCurrentPage(currentPage => currentPage + 1);
 
   const openModal = (link, tags) => {
     setIsModalOpen(true);
@@ -112,12 +95,7 @@ const App = () => {
       <Searchbar onSubmit={handleSearchSubmit} />
       <main>
         <ImageGallery images={respData} onClickImage={openModal} />
-        {isEmpty && (
-          <p style={{ textAlign: 'center' }}>
-            Sorry. There are no images ... 😭
-          </p>
-        )}
-        {isShowBtn && <Button onClick={handleClickBtnLoadmore} />}
+        {isShowLoadmoreButton && <Button onClick={handleClickBtnLoadmore} />}
         {isLoading && <Loader />}
         {error && <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>}
         <Modal
@@ -132,10 +110,10 @@ const App = () => {
 
 App.propTypes = {
   searchQuery: PropTypes.string,
-  page: PropTypes.number,
+  currentPage: PropTypes.number,
   images: PropTypes.array,
   isLoading: PropTypes.bool,
-  isShowBtn: PropTypes.bool,
+  isShowLoadmoreButton: PropTypes.bool,
   isEmpty: PropTypes.bool,
   error: PropTypes.string,
   isModalOpen: PropTypes.bool,
